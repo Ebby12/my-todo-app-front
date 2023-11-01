@@ -1,0 +1,22 @@
+.container {
+  border-radius: 10px;
+  border: 1px solid;
+  max-width: 25rem;
+  padding: 1rem;
+  margin: 0 auto;
+}
+
+.container img {
+  width: 25px;
+  right: 0;
+}
+
+.header {
+  /* display: flex; */
+  /* justify-content: space-between; */
+}
+
+.header span {
+  /* margin-left: 5rem; */
+  text-align: center;
+}
