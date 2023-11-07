@@ -1,10 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./task.css";
 import Button from "../../components/Button/button";
 import Actionmodal from "../../components/ActionModal/actionmodal";
+import axios from "axios";
 
 function Task() {
   const [activeModal, setActiveModal] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [selectedTask, setSelectedTasks] = useState(null);
+
+  useEffect(() => {
+    axios.get("http://localhost:5050/tasks").then((res) => {
+      console.log(res.data);
+      setTasks(res.data);
+    });
+  }, []);
+
+  const createNewTask = (task) => {
+    let data = JSON.stringify({
+      title: task.title,
+      description: task.description,
+      status: "init",
+      userId: "1",
+    });
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "http://localhost:5050/tasks/create",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        window.location.reload();
+        console.log(JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const deleteNewTask = (task) => {
+    let config = {
+      method: "delete",
+      maxBodyLength: Infinity,
+      url: `http://localhost:5050/tasks/${task.id}`,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        window.location.reload();
+        console.log(JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <div>
@@ -16,45 +73,43 @@ function Task() {
           <th>Actions</th>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>complete assignment</td>
-            <td class="description">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum
-              laudantium modi magni dolore ea nostrum. Corporis, minima hic.
-              Voluptatum vel, dolorem voluptate sit deleniti dolor ipsa eligendi
-              harum nostrum sapiente!
-            </td>
-            <td>
-              <span
-                class="action"
-                onClick={() => {
-                  setActiveModal("create");
-                }}
-              >
-                Create
-              </span>
-              <span
-                class="action"
-                onClick={() => {
-                  setActiveModal("edit");
-                }}
-              >
-                Edit
-              </span>
-              <span
-                class="action"
-                onClick={() => {
-                  setActiveModal("delete");
-                }}
-              >
-                Delete
-              </span>
-            </td>
-          </tr>
+          {tasks.map((task) => {
+            return (
+              <tr>
+                <td>{task.id}</td>
+                <td>{task.title}</td>
+                <td class="description">{task.description}</td>
+                <td>
+                  <span
+                    class="action"
+                    onClick={() => {
+                      setActiveModal("edit");
+                      setSelectedTasks(task);
+                    }}
+                  >
+                    Edit
+                  </span>
+                  <span
+                    class="action"
+                    onClick={() => {
+                      setActiveModal("delete");
+                      setSelectedTasks(task);
+                    }}
+                  >
+                    Delete
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-      <Button title={"Add New Task"} />
+      <Button
+        title={"Add New Task"}
+        action={() => {
+          setActiveModal("create");
+        }}
+      />
 
       {activeModal === "create" && (
         <Actionmodal
@@ -62,7 +117,7 @@ function Task() {
           closeAction={() => setActiveModal(null)}
           task={null}
           buttonLabel="Create"
-          modalAction={null}
+          modalAction={createNewTask}
         />
       )}
 
@@ -80,9 +135,9 @@ function Task() {
         <Actionmodal
           title="Delete Task"
           closeAction={() => setActiveModal(null)}
-          task={null}
+          task={selectedTask}
           buttonLabel="Delete"
-          modalAction={null}
+          modalAction={deleteNewTask}
         />
       )}
     </div>
