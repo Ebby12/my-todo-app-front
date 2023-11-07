@@ -33,7 +33,10 @@ function Actionmodal({ closeAction, title, task, modalAction, buttonLabel }) {
           cols="50"
         />
       </div>
-      <Button title={buttonLabel} action={() => modalAction(task)} />
+      <Button
+        title={buttonLabel}
+        action={() => modalAction({ title: name, description, id: task?.id })}
+      />
     </form>
   );
 }
